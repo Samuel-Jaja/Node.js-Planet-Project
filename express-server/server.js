@@ -1,48 +1,28 @@
-//import express from 'express';
+//import express from 'express'; ES2020
+const friendController = require('./controllers/friends.controller');
+const messageController = require('./controllers/message.controller');
 const express = require('express')
 const app = express();
 const PORT = 4001;
 
+app.use(express.json());
 
-
-app.get('/',(req, res)=>{
-    res.send("Hello Node.js")
+app.use((req, res, next)=>{
+    const startTime = Date.now();
+    next();
+    const delta = Date.now() - startTime;
+    console.log(`${req.method} ${req.url} ${delta} milliseconds [ms]`);
 })
 
-const friends = [
-    {
-        id:0,
-        firstName:'Catherine'
-    },
-    {
-        id:1,
-        firstName:'Carine'
-    },
-    {
-        id:2,
-        firstName:'Samuel Jaja'
-    },
-    {
-        id:3,
-        firstName:'Francis Enyi'
-    },
-]
 
-app.get('/friends',(req, res)=>{
-    res.send(friends)
-})
+//Friend Controllers
+app.get('/friends', friendController.getFriends);
+app.get('/friends/:id', friendController.getFriendsById);
+app.post('/friends', friendController.postFriend);
 
-app.get('/friends/:id', (req, res) => {
-    const friendId = Number(req.params.id);
-    const friend = friends[friendId];
-    if (friend) {
-        res.status(200).json(friend);
-    }   else{
-        res.status(404).json({
-            error:'Friend not Found'
-        });
-    }
-})
+//Message Controllers 
+app.get('/message', messageController.getMessages);
+app.post('/message', messageController.postMessages);
 
 app.listen(PORT,()=>{
     console.log(`Listening on port ${PORT}`)
